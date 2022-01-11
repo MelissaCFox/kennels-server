@@ -1,6 +1,13 @@
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal, get_all_locations, get_single_location, get_all_employees, get_single_employee, get_all_customers, get_single_customer, create_animal, create_location, create_employee, create_customer, delete_animal, delete_location, delete_employee, delete_customer, update_animal, update_location, update_employee, update_customer
 import json
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
+from views import (create_animal, create_customer, create_employee,
+                   create_location, delete_animal, delete_customer,
+                   delete_employee, delete_location, get_all_animals,
+                   get_all_customers, get_all_employees, get_all_locations,
+                   get_single_animal, get_single_customer, get_single_employee,
+                   get_single_location, update_animal, update_customer,
+                   update_employee, update_location)
 
 
 # Here's a class. It inherits from another class.
@@ -105,7 +112,9 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         # Parse the URL
-        (resource, id) = self.parse_url(self.path)
+        # Since we aren't using the id property that's returned from parse_url, 
+        # we can unpack that value as "_" to indicate that we don't plan on using it
+        (resource, _) = self.parse_url(self.path)
 
         # Initialize new animal
         new_object = None

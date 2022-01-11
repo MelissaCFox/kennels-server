@@ -31,6 +31,16 @@ def get_all_animals():
 
 # Function with a single parameter
 def get_single_animal(id):
+    """[returns single animal]
+
+    Args:
+        id ([int]): [id value of the requested animal dict]
+
+    Returns:
+        [dict]: [dictionary of animal with matching id value that was passed as an argument]
+    """
+    
+    
     # Variable to hold the found animal, if it exists
     requested_animal = None
 

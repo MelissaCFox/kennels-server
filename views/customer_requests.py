@@ -3,21 +3,25 @@ CUSTOMERS = [
         "id": 1,
         "name": "Emma Beaton",
         "email": "emma@beaton.com",
+        "password": "emma"
     },
     {
         "id": 2,
         "name": "Dani Adkins",
         "email": "dani.adkins.com",
+        "password": "dani"
     },
     {
         "id": 3,
         "name": "Adam Oswalt",
         "email": "adam@oswalt.com",
-    },
+        "password": "adam"
+},
     {
         "id": 4,
         "name": "Fletcher Bangs",
         "email": "flangs@bangs.com",
+        "password": "fletcher"
     }
 ]
 
