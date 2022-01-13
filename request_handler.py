@@ -8,7 +8,8 @@ from views import (create_animal, create_customer, create_employee,
                    get_single_animal, get_single_customer, get_single_employee,
                    get_single_location, update_animal, update_customer,
                    update_employee, update_location, get_customers_by_email, 
-                   get_customers_by_name)
+                   get_customers_by_name, get_animal_by_location, 
+                   get_animal_by_status, get_employee_by_location)
 
 
 # Here's a class. It inherits from another class.
@@ -123,10 +124,14 @@ class HandleRequests(BaseHTTPRequestHandler):
             if key == "email" and resource == "customers":
                 response = get_customers_by_email(value)
             elif key == "name" and resource == "customers":
-                first_name = value.split("+")[0]
-                last_name = value.split("+")[1]
-                full_name = f'{first_name} {last_name}'
+                full_name = value.replace("+", " ")
                 response = get_customers_by_name(full_name)
+            elif key == "location_id" and resource == "animals":
+                response = get_animal_by_location(value)
+            elif key == "location_id" and resource == "employees":
+                response = get_employee_by_location(value)
+            elif key == "status" and resource == "animals":
+                response = get_animal_by_status(value)
 
         self.wfile.write(response.encode())
 
