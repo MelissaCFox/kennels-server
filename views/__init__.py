@@ -1,5 +1,5 @@
 from .animal_requests import (create_animal, delete_animal, get_all_animals,
-                              get_single_animal, update_animal, 
+                              get_single_animal, update_animal,
                               get_animal_by_location, get_animal_by_status)
 from .customer_requests import (create_customer, delete_customer,
                                 get_all_customers, get_single_customer,
