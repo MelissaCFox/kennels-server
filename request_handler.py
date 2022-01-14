@@ -7,8 +7,8 @@ from views import (create_animal, create_customer, create_employee,
                    get_all_customers, get_all_employees, get_all_locations,
                    get_single_animal, get_single_customer, get_single_employee,
                    get_single_location, update_animal, update_customer,
-                   update_employee, update_location, get_customers_by_email, 
-                   get_customers_by_name, get_animal_by_location, 
+                   update_employee, update_location, get_customers_by_email,
+                   get_customers_by_name, get_animal_by_location,
                    get_animal_by_status, get_employee_by_location)
 
 
@@ -21,6 +21,7 @@ class HandleRequests(BaseHTTPRequestHandler):
     # It gives a description of the class or function
     """Controls the functionality of any GET, PUT, POST, DELETE requests to the server
     """
+
     def parse_url(self, path):
         path_params = path.split("/")
         resource = path_params[1]
@@ -35,7 +36,7 @@ class HandleRequests(BaseHTTPRequestHandler):
             key = pair[0]  # 'email'
             value = pair[1]  # 'jenna@solis.com'
 
-            return ( resource, key, value )
+            return (resource, key, value)
 
         # No query string parameter
         else:
@@ -50,8 +51,8 @@ class HandleRequests(BaseHTTPRequestHandler):
 
             return (resource, id)
 
-
     # Here's a class function
+
     def _set_headers(self, status):
         # Notice this Docstring also includes information about the arguments passed to the function
         """Sets the status code, Content-Type and Access-Control-Allow-Origin
@@ -71,8 +72,10 @@ class HandleRequests(BaseHTTPRequestHandler):
         """
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Accept')
+        self.send_header('Access-Control-Allow-Methods',
+                         'GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers',
+                         'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
     # Here's a method on the class that overrides the parent's method.
@@ -89,7 +92,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         # items in it, which means the request was for
         # `/animals` or `/animals/2`
         if len(parsed) == 2:
-            ( resource, id ) = parsed
+            (resource, id) = parsed
 
             if resource == "animals":
                 if id is not None:
@@ -116,7 +119,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         # items in it, which means the request was for
         # `/resource?parameter=value`
         elif len(parsed) == 3:
-            ( resource, key, value ) = parsed
+            (resource, key, value) = parsed
 
             # Is the resource `customers` and was there a
             # query parameter that specified the customer
@@ -135,9 +138,9 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         self.wfile.write(response.encode())
 
-
     # Here's a method on the class that overrides the parent's method.
     # It handles any POST request.
+
     def do_POST(self):
         self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
@@ -147,7 +150,7 @@ class HandleRequests(BaseHTTPRequestHandler):
         post_body = json.loads(post_body)
 
         # Parse the URL
-        # Since we aren't using the id property that's returned from parse_url, 
+        # Since we aren't using the id property that's returned from parse_url,
         # we can unpack that value as "_" to indicate that we don't plan on using it
         (resource, _) = self.parse_url(self.path)
 
@@ -188,13 +191,11 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # Encode the new animal and send in response
         self.wfile.write("".encode())
-    
-    
+
     # Here's a method on the class that overrides the parent's method.
     # It handles any PUT request.
 
     def do_PUT(self):
-        self._set_headers(204)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
         post_body = json.loads(post_body)
@@ -202,22 +203,32 @@ class HandleRequests(BaseHTTPRequestHandler):
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
-        # Delete a single animal from the list
+        success = False
+
         if resource == "animals":
+            success = True
             update_animal(id, post_body)
-        if resource == "locations":
+        elif resource == "locations":
+            success = True
             update_location(id, post_body)
-        if resource == "employees":
+        elif resource == "employees":
+            success = True
             update_employee(id, post_body)
-        if resource == "customers":
+        elif resource == "customers":
+            success = True
             update_customer(id, post_body)
 
-        # Encode the new animal and send in response
-        self.wfile.write("".encode())
+        if success:
+            self._set_headers(204)
+        else:
+            self._set_headers(404)
 
+        self.wfile.write("".encode())
 
 # This function is not inside the class. It is the starting
 # point of this application.
+
+
 def main():
     """Starts the server on port 8088 using the HandleRequests class
     """
