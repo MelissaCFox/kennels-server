@@ -2,27 +2,6 @@ import sqlite3
 import json
 from models import Employee, Location
 
-EMPLOYEES = [
-    {
-        "id": 1,
-        "name": "Jessica Younker",
-        "email": "jessica@younker.com",
-        "locationId": 1
-    },
-    {
-        "id": 2,
-        "name": "Jordan Nelson",
-        "email": "jordan@nelson.com",
-        "locationId": 1
-    },
-    {
-        "name": "Meg Ducharme",
-        "email": "meg@ducharme.com",
-        "id": 3,
-        "locationId": 2
-    }
-]
-
 
 def get_all_employees():
     # Open a connection to the database
@@ -85,8 +64,12 @@ def get_single_employee(id):
             e.id,
             e.name,
             e.address,
-            e.location_id
+            e.location_id,
+            l.name location_name,
+            l.address location_address
         FROM employee e
+        JOIN Location l
+            ON l.id = e.location_id
         WHERE e.id = ?
         """, (id, ))
 
@@ -96,6 +79,10 @@ def get_single_employee(id):
         # Create an employee instance from the current row
         employee = Employee(data['id'], data['name'], data['address'],
                             data['location_id'])
+        location = Location(data['id'], data['location_name'],
+                            data['location_address'] )
+        
+        employee.location = location.__dict__
 
         return json.dumps(employee.__dict__)
 
@@ -136,14 +123,29 @@ def delete_employee(id):
 
 
 def update_employee(id, new_employee):
-    # Iterate the EMPLOYEES list, but use enumerate() so that
-    # you can access the index value of each item.
-    for index, employee in enumerate(EMPLOYEES):
-        if employee["id"] == id:
-            # Found the employee. Update the value.
-            EMPLOYEES[index] = new_employee
-            break
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        db_cursor = conn.cursor()
 
+        db_cursor.execute("""
+        UPDATE Employee
+            SET
+                name = ?,
+                address = ?,
+                location_id = ?
+        WHERE id = ?
+        """, (new_employee['name'], new_employee['address'],
+              new_employee['location_id'], id, ))
+
+        # Were any rows affected?
+        # Did the client send an `id` that exists?
+        rows_affected = db_cursor.rowcount
+
+    if rows_affected == 0:
+        # Forces 404 response by main module
+        return False
+    else:
+        # Forces 204 response by main module
+        return True
 
 def get_employee_by_location(location_id):
     with sqlite3.connect("./kennel.sqlite3") as conn:

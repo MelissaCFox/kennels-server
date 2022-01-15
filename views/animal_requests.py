@@ -2,34 +2,6 @@ import sqlite3
 import json
 from models import Animal, Location, Customer
 
-ANIMALS = [
-    {
-        "id": 1,
-        "name": "Snickers",
-        "species": "Dog",
-        "locationId": 1,
-        "customerId": 4,
-        "status": "Admitted"
-    },
-    {
-        "id": 2,
-        "name": "Gypsy",
-        "species": "Dog",
-        "locationId": 1,
-        "customerId": 2,
-        "status": "Admitted"
-    },
-    {
-        "id": 3,
-        "name": "Blue",
-        "species": "Cat",
-        "locationId": 2,
-        "customerId": 1,
-        "status": "Admitted"
-    }
-]
-
-
 def get_all_animals():
     # Open a connection to the database
     with sqlite3.connect("./kennel.sqlite3") as conn:
@@ -113,8 +85,17 @@ def get_single_animal(id):
             a.breed,
             a.status,
             a.location_id,
-            a.customer_id
-        FROM animal a
+            a.customer_id,
+            l.name location_name,
+            l.address location_address,
+            c.name customer_name,
+            c.address customer_address,
+            c.email customer_email
+        FROM Animal a
+        JOIN Location l
+            ON l.id = a.location_id
+        JOIN Customer c
+            ON c.id = a.customer_id
         WHERE a.id = ?
         """, (id, ))
 
@@ -125,6 +106,20 @@ def get_single_animal(id):
         animal = Animal(data['id'], data['name'], data['breed'],
                         data['status'], data['location_id'],
                         data['customer_id'])
+        
+                    # Create a Location instance from the current row
+        location = Location(
+            data['id'], data['location_name'], data['location_address'])
+
+        # Add the dictionary representation of the location to the animal
+        animal.location = location.__dict__
+
+        # Create a customer instance from the current row
+        customer = Customer(data['id'], data['customer_name'], data['customer_address'],
+                                data['customer_email'])
+            
+        # Add the dictionary representation of the customer to the animal
+        animal.customer = customer.__dict__
 
         return json.dumps(animal.__dict__)
 
@@ -135,7 +130,7 @@ def create_animal(new_animal):
 
         db_cursor.execute("""
         INSERT INTO Animal
-            ( name, breed, location_id, status, customer_id )
+            ( name, breed, status, location_id, customer_id )
         VALUES
             ( ?, ?, ?, ?, ?);
         """, (new_animal['name'], new_animal['breed'],
